@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local generated data
+data/*.csv
+
+# Editor and OS files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
