@@ -15,6 +15,98 @@ The project parses job listing HTML into structured Python dataclasses, optional
 - Deduplicate jobs by `job_url`
 - Includes pytest coverage for parser, scraper, storage, package exports, and salary handling
 
+## Official Documentation Used
+
+This project is based on the following official documentation:
+
+- [Beautiful Soup documentation](https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+- [HTTPX documentation](https://www.python-httpx.org/)
+- [HTTPX transports and mock transport documentation](https://www.python-httpx.org/advanced/transports/)
+- [pytest monkeypatch documentation](https://docs.pytest.org/en/stable/how-to/monkeypatch.html)
+- [Python `urllib.robotparser` documentation](https://docs.python.org/3/library/urllib.robotparser.html)
+
+## Implementation Notes
+
+### HTML parsing with Beautiful Soup
+
+`job_parser.py` uses Beautiful Soup to parse raw HTML into a searchable document tree:
+
+```python
+soup = BeautifulSoup(html, "html.parser")
+```
+
+The parser then uses CSS selectors such as:
+
+```python
+soup.select("ol.list-recent-jobs > li")
+job_node.select_one("h2 a, a.job-title")
+```
+
+This keeps the parsing logic readable and easy to update when the HTML structure changes.
+
+### HTTP requests with HTTPX
+
+`job_scraper.py` uses `httpx.Client` for HTTP requests:
+
+```python
+with httpx.Client(
+    headers=headers,
+    timeout=self.config.timeout_seconds,
+    follow_redirects=True,
+    transport=self._transport,
+) as client:
+    ...
+```
+
+HTTPX is used for:
+
+- request timeouts
+- redirect handling
+- custom `User-Agent` headers
+- clear request exceptions
+- injecting a test transport without making real network calls
+
+### Test HTTP calls with HTTPX MockTransport
+
+The tests use `httpx.MockTransport` so scraper behavior can be tested without reaching the real Python.org website:
+
+```python
+transport = httpx.MockTransport(handler)
+```
+
+The handler receives the request and returns a controlled `httpx.Response`. This makes pagination, errors, and robots behavior deterministic in tests.
+
+### Replacing slow behavior with pytest monkeypatch
+
+The scraper sleeps between pages during real scraping:
+
+```python
+time.sleep(self.config.delay_seconds)
+```
+
+Tests use pytest `monkeypatch` to replace `time.sleep`, so tests stay fast:
+
+```python
+monkeypatch.setattr("time.sleep", lambda seconds: None)
+```
+
+### robots.txt support with urllib.robotparser
+
+`RobotsPolicy` uses Python's standard-library `urllib.robotparser.RobotFileParser` to parse `robots.txt` rules:
+
+```python
+self._parser = RobotFileParser()
+self._parser.parse(response.text.splitlines())
+```
+
+Before fetching each job page, the scraper checks whether the configured user agent is allowed:
+
+```python
+self.robots_policy.can_fetch(self.config.user_agent, page_url)
+```
+
+By default, `respect_robots=True`.
+
 ## Project Structure
 
 ```text
