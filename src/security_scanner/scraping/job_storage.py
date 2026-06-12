@@ -49,12 +49,12 @@ def save_jobs_to_csv(listings: list[JobListing], csv_path: Path) -> int:
         seen_urls.add(listing.job_url)
         new_listings.append(listing)
 
-    file_exists = csv_path.exists()
+    needs_header = not csv_path.exists() or csv_path.stat().st_size == 0
 
     with csv_path.open("a", encoding="utf-8", newline="") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=CSV_FIELDS)
 
-        if not file_exists:
+        if needs_header:
             writer.writeheader()
 
         for listing in new_listings:
