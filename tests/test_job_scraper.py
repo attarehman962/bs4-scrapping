@@ -1,3 +1,4 @@
+import csv
 from pathlib import Path
 
 import httpx
@@ -91,6 +92,7 @@ def test_save_jobs_to_csv_writes_rows(tmp_path: Path) -> None:
             location="Remote",
             date_posted="12 June 2026",
             job_url="https://example.com/jobs/1",
+            salary="PKR 250,000 - 400,000",
         )
     ]
 
@@ -98,7 +100,12 @@ def test_save_jobs_to_csv_writes_rows(tmp_path: Path) -> None:
 
     assert rows_written == 1
     assert csv_path.exists()
-    assert "Python Developer" in csv_path.read_text(encoding="utf-8")
+
+    with csv_path.open("r", encoding="utf-8", newline="") as csv_file:
+        rows = list(csv.DictReader(csv_file))
+
+    assert rows[0]["title"] == "Python Developer"
+    assert rows[0]["salary"] == "PKR 250,000 - 400,000"
 
 
 def test_save_jobs_to_csv_deduplicates_existing_urls(
@@ -219,6 +226,7 @@ def test_scraper_handles_pagination_without_real_http(
     assert result.pages_scraped == 2
     assert len(result.listings) == 2
     assert result.listings[0].title == "Python Backend Developer"
+    assert result.listings[0].salary == "PKR 250,000 - 400,000"
     assert result.listings[1].title == "Security Automation Engineer"
 
 
