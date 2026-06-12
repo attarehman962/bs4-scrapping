@@ -5,8 +5,8 @@ from urllib.robotparser import RobotFileParser
 
 import httpx
 
-from security_scanner.scraping.job_models import ScrapeResult
-from security_scanner.scraping.job_parser import parse_python_job_board
+from .job_models import ScrapeResult
+from .job_parser import parse_python_job_board
 
 
 @dataclass(frozen=True, slots=True)

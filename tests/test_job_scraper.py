@@ -3,12 +3,12 @@ from pathlib import Path
 import httpx
 import pytest
 
-from security_scanner.scraping.job_models import JobListing
 from security_scanner.scraping.job_parser import parse_python_job_board
 from security_scanner.scraping.job_scraper import (
     PythonJobBoardScraper,
     ScraperConfig,
 )
+from security_scanner.scraping import JobListing
 from security_scanner.scraping.job_storage import save_jobs_to_csv
 
 

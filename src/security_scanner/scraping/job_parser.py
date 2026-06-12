@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from security_scanner.scraping.job_models import JobListing
+from .job_models import JobListing
 
 
 POSTED_DATE_PATTERN = re.compile(

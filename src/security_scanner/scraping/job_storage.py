@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from security_scanner.scraping.job_models import JobListing
+from .job_models import JobListing
 
 
 CSV_FIELDS = [
